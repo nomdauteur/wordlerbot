@@ -74,7 +74,7 @@ def guessStep(message):
                     answer+='🟨'
                 elif i=='b':
                     answer+='🟩'
-            msg = bot.send_message(chat_id, answer+('\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else  '\nОсталось '+str(variables[chat_id]['tries'])+'попыток'), reply_markup=None)
+            msg = bot.send_message(chat_id, answer+('\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else  '\nОсталось '+str(variables[chat_id]['tries'])+' попыток'), reply_markup=None)
             bot.register_next_step_handler(msg, guessStep)
 
 bot.polling(none_stop=True)
