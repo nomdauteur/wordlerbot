@@ -18,7 +18,12 @@ def start_handler(message):
     #variables[chat_id]['mode']=mode
     variables[chat_id]['tries']=5
     print('Choosing lang')
-    msg = bot.send_message(chat_id, 'Выберите язык | Choose your language')
+    lng = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    lng_btn1 = types.KeyboardButton('ENG')
+    lng_btn2 = types.KeyboardButton('RUS')
+    lng.add(lng_btn1, lng_btn2)
+    msg = bot.send_message(chat_id, 'Выберите язык | Choose your language', reply_markup=lng)
+   
     bot.register_next_step_handler(msg, askLang)
 
 def askLang(message):
