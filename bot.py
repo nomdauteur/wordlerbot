@@ -22,6 +22,7 @@ def start_handler(message):
     bot.register_next_step_handler(msg, askLang)
 
 def askLang(message):
+    chat_id = message.chat.id
     text=message.text
     variables[chat_id]['mode'] = text
     with open(dir + '/' + ('eng' if variables[chat_id]['mode'] == 'ENG' else 'rus') + '_fivers.txt', encoding="utf-8") as f:
