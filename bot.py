@@ -64,11 +64,11 @@ def guessStep(message):
             answer=''
             for i in res:
                 if i=='_':
-                    answer+='\xE2\xAC\x9C\xEF\xB8\x8F'
+                    answer+='⬜'
                 elif i=='c':
-                    answer+='\xF0\x9F\x9F\xA8'
+                    answer+='🟨'
                 elif i=='b':
-                    answer+='\xF0\x9F\x9F\xA9'
+                    answer+='🟩'
             msg = bot.send_message(chat_id, answer)
             bot.register_next_step_handler(msg, guessStep)
 
