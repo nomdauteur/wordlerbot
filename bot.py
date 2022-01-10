@@ -28,6 +28,7 @@ def askLang(message):
     with open(dir + '/' + ('eng' if variables[chat_id]['mode'] == 'ENG' else 'rus') + '_fivers.txt', encoding="utf-8") as f:
         wordlist = f.readlines()
         variables[chat_id]['word'] = random.choice(wordlist)
+    print(wordlist)
     print('Word is chosen')
     msg = bot.send_message(chat_id, 'Осталось 5 попыток')
     bot.register_next_step_handler(msg, guessStep)
