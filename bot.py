@@ -10,7 +10,7 @@ wordlist=[]
 variables={}
 
 restart = telebot.types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-restart_btn1 = telebot.types.KeyboardButton('start')
+restart_btn1 = telebot.types.KeyboardButton('/start')
 restart.add(restart_btn1)
 
 #handlers
