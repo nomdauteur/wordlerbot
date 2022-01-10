@@ -43,10 +43,10 @@ def guessStep(message):
     print('Step no '+str(variables[chat_id]['tries']))
     #check word
     if len(text)!=5:
-        msg = bot.send_message(chat_id, 'Word must be 5 characters long' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно быть длиной в 5 букв', reply_markup=None)
+        msg = bot.send_message(chat_id, 'Word must be 5 characters long\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно быть длиной в 5 букв\nОсталось '+str(variables[chat_id]['tries'])+' попыток', reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     elif text+'\n' not in variables[chat_id]['wordlist']:
-        msg = bot.send_message(chat_id, 'Word must be present in dictionary' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре', reply_markup=None)
+        msg = bot.send_message(chat_id, 'Word must be present in dictionary\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре\nОсталось '+str(variables[chat_id]['tries'])+' попыток', reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     else:
         variables[chat_id]['tries']-=1
@@ -74,7 +74,7 @@ def guessStep(message):
                     answer+='🟨'
                 elif i=='b':
                     answer+='🟩'
-            msg = bot.send_message(chat_id, answer, reply_markup=None)
+            msg = bot.send_message(chat_id, answer+('\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else  '\nОсталось '+str(variables[chat_id]['tries'])+'попыток'), reply_markup=None)
             bot.register_next_step_handler(msg, guessStep)
 
 bot.polling(none_stop=True)
