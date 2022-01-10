@@ -19,7 +19,7 @@ def start_handler(message):
     variables[chat_id]['tries']=5
     print('Choosing lang')
     msg = bot.send_message(chat_id, 'Выберите язык')
-    bot.register_next_step_handler(msg, asklang)
+    bot.register_next_step_handler(msg, askLang)
 
 def askLang(message):
     text=message.text
