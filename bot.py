@@ -18,7 +18,7 @@ def start_handler(message):
     #variables[chat_id]['mode']=mode
     variables[chat_id]['tries']=5
     print('Choosing lang')
-    lng = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    lng = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     lng_btn1 = telebot.types.KeyboardButton('ENG')
     lng_btn2 = telebot.types.KeyboardButton('RUS')
     lng.add(lng_btn1, lng_btn2)
