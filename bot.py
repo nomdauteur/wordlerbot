@@ -55,12 +55,14 @@ def guessStep(message):
             else:
                 res+='_'
         #print('your try is: '+res)
-        msg = bot.send_message(chat_id, res)
         if (res == 'bbbbb'):
             msg = bot.send_message(chat_id, 'You won!')
             return
         elif variables[chat_id]['tries'] == 0:
             msg = bot.send_message(chat_id, 'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'])
             return
+        else:
+            msg = bot.send_message(chat_id, res)
+            bot.register_next_step_handler(msg, guessStep)
 
 bot.polling(none_stop=True)
