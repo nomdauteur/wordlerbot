@@ -9,10 +9,6 @@ wordlist=[]
 
 variables={}
 
-restart = telebot.types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-restart_btn1 = telebot.types.KeyboardButton('/start')
-restart.add(restart_btn1)
-
 #handlers
 @bot.message_handler(commands=['start', 'go'])
 def start_handler(message):
@@ -38,7 +34,7 @@ def askLang(message):
         variables[chat_id]['wordlist'] = f.readlines()
         variables[chat_id]['word'] = random.choice(variables[chat_id]['wordlist'])
     print('Word is chosen: '+ variables[chat_id]['word'])
-    msg = bot.send_message(chat_id, '6 tries left' if variables[chat_id]['mode'] == 'ENG' else 'Осталось 6 попыток', reply_markup=restart)
+    msg = bot.send_message(chat_id, '6 tries left' if variables[chat_id]['mode'] == 'ENG' else 'Осталось 6 попыток', reply_markup=None)
     bot.register_next_step_handler(msg, guessStep)
 
 def guessStep(message):
@@ -47,10 +43,10 @@ def guessStep(message):
     print('Step no '+str(variables[chat_id]['tries']))
     #check word
     if len(text)!=5:
-        msg = bot.send_message(chat_id, 'Word must be 5 characters long' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно быть длиной в 5 букв', reply_markup=restart)
+        msg = bot.send_message(chat_id, 'Word must be 5 characters long' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно быть длиной в 5 букв', reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     elif text+'\n' not in variables[chat_id]['wordlist']:
-        msg = bot.send_message(chat_id, 'Word must be present in dictionary' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре', reply_markup=restart)
+        msg = bot.send_message(chat_id, 'Word must be present in dictionary' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре', reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     else:
         variables[chat_id]['tries']-=1
@@ -64,10 +60,10 @@ def guessStep(message):
                 res+='_'
         #print('your try is: '+res)
         if (res == 'bbbbb'):
-            msg = bot.send_message(chat_id, 'You won' if variables[chat_id]['mode'] == 'ENG' else 'Победа!', reply_markup=restart)
+            msg = bot.send_message(chat_id, 'You won' if variables[chat_id]['mode'] == 'ENG' else 'Победа!', reply_markup=None)
             return
         elif variables[chat_id]['tries'] == 0:
-            msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: '+ variables[chat_id]['word']  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'], reply_markup=restart)
+            msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: '+ variables[chat_id]['word']  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'], reply_markup=None)
             return
         else:
             answer=''
@@ -78,7 +74,7 @@ def guessStep(message):
                     answer+='🟨'
                 elif i=='b':
                     answer+='🟩'
-            msg = bot.send_message(chat_id, answer, reply_markup=restart)
+            msg = bot.send_message(chat_id, answer, reply_markup=None)
             bot.register_next_step_handler(msg, guessStep)
 
 bot.polling(none_stop=True)
