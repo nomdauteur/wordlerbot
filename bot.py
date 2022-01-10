@@ -28,8 +28,7 @@ def askLang(message):
     with open(dir + '/' + ('eng' if variables[chat_id]['mode'] == 'ENG' else 'rus') + '_fivers.txt', encoding="utf-8") as f:
         variables[chat_id]['wordlist'] = f.readlines()
         variables[chat_id]['word'] = random.choice(variables[chat_id]['wordlist'])
-    print(variables[chat_id]['wordlist'])
-    print('Word is chosen')
+    print('Word is chosen: '+ variables[chat_id]['word'])
     msg = bot.send_message(chat_id, 'Осталось 5 попыток')
     bot.register_next_step_handler(msg, guessStep)
 
@@ -39,10 +38,10 @@ def guessStep(message):
     print('Step no '+str(variables[chat_id]['tries']))
     #check word
     if len(text)!=5:
-        msg = bot.send_message(chat_id, 'Your word must be 5 letters')
+        msg = bot.send_message(chat_id, 'Слово должно быть длиной в 5 букв')
         bot.register_next_step_handler(msg, guessStep)
     elif text+'\n' not in variables[chat_id]['wordlist']:
-        msg = bot.send_message(chat_id, 'Your word must be from dictionary')
+        msg = bot.send_message(chat_id, 'Слово должно существовать в словаре')
         bot.register_next_step_handler(msg, guessStep)
     else:
         variables[chat_id]['tries']-=1
