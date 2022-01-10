@@ -10,7 +10,7 @@ wordlist=[]
 variables={}
 
 restart = telebot.types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-restart_btn1 = telebot.types.KeyboardButton('restart')
+restart_btn1 = telebot.types.KeyboardButton('start')
 restart.add(restart_btn1)
 
 #handlers
@@ -20,7 +20,7 @@ def start_handler(message):
     print('chat id is '+str(chat_id))
     variables[chat_id]={}
     #variables[chat_id]['mode']=mode
-    variables[chat_id]['tries']=5
+    variables[chat_id]['tries']=6
     print('Choosing lang')
     lng = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     lng_btn1 = telebot.types.KeyboardButton('ENG')
@@ -38,7 +38,7 @@ def askLang(message):
         variables[chat_id]['wordlist'] = f.readlines()
         variables[chat_id]['word'] = random.choice(variables[chat_id]['wordlist'])
     print('Word is chosen: '+ variables[chat_id]['word'])
-    msg = bot.send_message(chat_id, '5 tries left' if variables[chat_id]['mode'] == 'ENG' else 'Осталось 5 попыток', reply_markup=restart)
+    msg = bot.send_message(chat_id, '6 tries left' if variables[chat_id]['mode'] == 'ENG' else 'Осталось 6 попыток', reply_markup=restart)
     bot.register_next_step_handler(msg, guessStep)
 
 def guessStep(message):
@@ -67,7 +67,7 @@ def guessStep(message):
             msg = bot.send_message(chat_id, 'You won' if variables[chat_id]['mode'] == 'ENG' else 'Победа!', reply_markup=restart)
             return
         elif variables[chat_id]['tries'] == 0:
-            msg = bot.send_message(chat_id, 'Sorry, all 5 tries are out. The word was: '+ variables[chat_id]['word']  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'], reply_markup=restart)
+            msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: '+ variables[chat_id]['word']  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'], reply_markup=restart)
             return
         else:
             answer=''
