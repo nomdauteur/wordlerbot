@@ -18,7 +18,7 @@ def start_handler(message):
     #variables[chat_id]['mode']=mode
     variables[chat_id]['tries']=5
     print('Choosing lang')
-    msg = bot.send_message(chat_id, 'Выберите язык')
+    msg = bot.send_message(chat_id, 'Выберите язык | Choose your language')
     bot.register_next_step_handler(msg, askLang)
 
 def askLang(message):
@@ -29,7 +29,7 @@ def askLang(message):
         variables[chat_id]['wordlist'] = f.readlines()
         variables[chat_id]['word'] = random.choice(variables[chat_id]['wordlist'])
     print('Word is chosen: '+ variables[chat_id]['word'])
-    msg = bot.send_message(chat_id, 'Осталось 5 попыток')
+    msg = bot.send_message(chat_id, '5 tries left' if variables[chat_id]['mode'] == 'ENG' else 'Осталось 5 попыток')
     bot.register_next_step_handler(msg, guessStep)
 
 def guessStep(message):
@@ -38,10 +38,10 @@ def guessStep(message):
     print('Step no '+str(variables[chat_id]['tries']))
     #check word
     if len(text)!=5:
-        msg = bot.send_message(chat_id, 'Слово должно быть длиной в 5 букв')
+        msg = bot.send_message(chat_id, 'Word must be 5 characters long' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно быть длиной в 5 букв')
         bot.register_next_step_handler(msg, guessStep)
     elif text+'\n' not in variables[chat_id]['wordlist']:
-        msg = bot.send_message(chat_id, 'Слово должно существовать в словаре')
+        msg = bot.send_message(chat_id, 'Word must be present in dictionary' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре')
         bot.register_next_step_handler(msg, guessStep)
     else:
         variables[chat_id]['tries']-=1
@@ -55,13 +55,21 @@ def guessStep(message):
                 res+='_'
         #print('your try is: '+res)
         if (res == 'bbbbb'):
-            msg = bot.send_message(chat_id, 'You won!')
+            msg = bot.send_message(chat_id, 'You won' if variables[chat_id]['mode'] == 'ENG' else 'Победа!')
             return
         elif variables[chat_id]['tries'] == 0:
-            msg = bot.send_message(chat_id, 'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'])
+            msg = bot.send_message(chat_id, 'Sorry, all 5 tries are out. The word was: '+ variables[chat_id]['word']  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'])
             return
         else:
-            msg = bot.send_message(chat_id, res)
+            answer=''
+            for i in res:
+                if i=='_':
+                    answer+='\xE2\xAC\x9C\xEF\xB8\x8F'
+                elif i=='c':
+                    answer+='\xF0\x9F\x9F\xA8'
+                elif i=='b':
+                    answer+='\xF0\x9F\x9F\xA9'
+            msg = bot.send_message(chat_id, answer)
             bot.register_next_step_handler(msg, guessStep)
 
 bot.polling(none_stop=True)
