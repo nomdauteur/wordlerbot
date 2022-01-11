@@ -29,7 +29,7 @@ def start_handler(message):
 def askLang(message):
     chat_id = message.chat.id
     text=message.text
-    variables[chat_id]['mode'] = text
+    variables[chat_id]['mode'] = 'RUS' if text == 'RUS' else 'ENG'
     with open(dir + '/' + ('eng' if variables[chat_id]['mode'] == 'ENG' else 'rus') + '_fivers.txt', encoding="utf-8") as f:
         variables[chat_id]['wordlist'] = f.readlines()
         variables[chat_id]['word'] = random.choice(variables[chat_id]['wordlist'])
@@ -43,10 +43,11 @@ def guessStep(message):
     print('Step no '+str(variables[chat_id]['tries']))
     #check word
     if len(text)!=5:
-        msg = bot.send_message(chat_id, 'Word must be 5 characters long\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно быть длиной в 5 букв\nОсталось '+str(variables[chat_id]['tries'])+' попыток', reply_markup=None)
+        msg = bot.send_message(chat_id, 'Word must be 5 characters long\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно быть длиной в 5 букв\nОсталось '+str(variables[chat_id]['tries'])+(' попыток' if variables[chat_id]['tries']>=5 else ' попытки' if variables[chat_id]['tries']>1 else ' попытка'), reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     elif text+'\n' not in variables[chat_id]['wordlist']:
-        msg = bot.send_message(chat_id, 'Word must be present in dictionary\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре\nОсталось '+str(variables[chat_id]['tries'])+' попыток', reply_markup=None)
+        print ('Candidate: '+text)
+        msg = bot.send_message(chat_id, 'Word must be present in dictionary\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре\nОсталось '+str(variables[chat_id]['tries'])+(' попыток' if variables[chat_id]['tries']>=5 else ' попытки' if variables[chat_id]['tries']>1 else ' попытка'), reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     else:
         variables[chat_id]['tries']-=1
@@ -60,10 +61,11 @@ def guessStep(message):
                 res+='_'
         #print('your try is: '+res)
         if (res == 'bbbbb'):
-            msg = bot.send_message(chat_id, 'You won' if variables[chat_id]['mode'] == 'ENG' else 'Победа!', reply_markup=None)
+            msg = bot.send_message(chat_id, 'You won. Send /start to play again' if variables[chat_id]['mode'] == 'ENG' else 'Победа! Отправьте /start для новой игры', reply_markup=None)
+            print('Word guessed')
             return
         elif variables[chat_id]['tries'] == 0:
-            msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: '+ variables[chat_id]['word']  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word'], reply_markup=None)
+            msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: '+ variables[chat_id]['word']+ '\nSend /start to play again'  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word']+'\nОтправьте /start для новой игры', reply_markup=None)
             return
         else:
             answer=''
@@ -74,7 +76,7 @@ def guessStep(message):
                     answer+='🟨'
                 elif i=='b':
                     answer+='🟩'
-            msg = bot.send_message(chat_id, answer+('\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else  '\nОсталось '+str(variables[chat_id]['tries'])+' попыток'), reply_markup=None)
+            msg = bot.send_message(chat_id, answer+('\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else  '\nОсталось '+str(variables[chat_id]['tries'])+(' попыток' if variables[chat_id]['tries']>=5 else ' попытки' if variables[chat_id]['tries']>1 else ' попытка')), reply_markup=None)
             bot.register_next_step_handler(msg, guessStep)
 
 bot.polling(none_stop=True)
