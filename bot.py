@@ -39,7 +39,7 @@ def askLang(message):
 
 def guessStep(message):
     chat_id = message.chat.id
-    text=message.text
+    text=message.text.lower()
     print('Step no '+str(variables[chat_id]['tries']))
     #check word
     if len(text)!=5:
