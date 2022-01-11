@@ -65,7 +65,7 @@ def guessStep(message):
             print('Word guessed')
             return
         elif variables[chat_id]['tries'] == 0:
-            msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: '+ variables[chat_id]['word']+ '\nSend /start to play again'  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word']+'\nОтправьте /start для новой игры', reply_markup=None)
+            msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: '+ variables[chat_id]['word']+ 'Send /start to play again'  if variables[chat_id]['mode'] == 'ENG' else  'К сожалению, попытки закончились. Слово было: '+ variables[chat_id]['word']+'Отправьте /start для новой игры', reply_markup=None)
             return
         else:
             answer=''
