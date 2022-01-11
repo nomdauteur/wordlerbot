@@ -47,6 +47,8 @@ def guessStep(message):
         bot.register_next_step_handler(msg, guessStep)
     elif text+'\n' not in variables[chat_id]['wordlist']:
         print ('Candidate: '+text)
+        with open(dir + '/' + variables[chat_id]['mode'] + '_suggestions.txt', 'a') as out:
+            out.write(text + '\n')
         msg = bot.send_message(chat_id, 'Word must be present in dictionary\n'+str(variables[chat_id]['tries'])+' tries left' if variables[chat_id]['mode'] == 'ENG' else 'Слово должно встречаться в словаре\nОсталось '+str(variables[chat_id]['tries'])+(' попыток' if variables[chat_id]['tries']>=5 else ' попытки' if variables[chat_id]['tries']>1 else ' попытка'), reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     else:
