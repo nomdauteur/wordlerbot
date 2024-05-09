@@ -1,6 +1,7 @@
 import random
 import os
 import telebot
+from systemd import journal
 
 dir = os.path.dirname(__file__)
 TOKEN = '5035471046:AAGoP2kz6lq9eRT_R9CFJYNu_gNCaBS9jeI'
@@ -10,16 +11,29 @@ wordlist = []
 
 variables = {}
 
+def getBoard(array):
+    board=''
+    for j in array:
+        for i in j:
+            if i == '_':
+                board += '⬜'
+            elif i == 'c':
+                board += '🟨'
+            elif i == 'b':
+                board += '🟩'
+        board+='\n'
+    return board
+
 
 # handlers
 @bot.message_handler(commands=['start', 'go'])
 def start_handler(message):
     chat_id = message.chat.id
-    print('chat id is ' + str(chat_id))
     variables[chat_id] = {}
     # variables[chat_id]['mode']=mode
     variables[chat_id]['tries'] = 6
-    print('Choosing lang')
+    variables[chat_id]['res'] = []
+    
     lng = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=True)
     lng_btn1 = telebot.types.KeyboardButton('ENG')
     lng_btn2 = telebot.types.KeyboardButton('RUS')
@@ -35,9 +49,12 @@ def askLang(message):
     variables[chat_id]['mode'] = 'RUS' if text == 'RUS' else 'ENG'
     with open(dir + '/' + ('eng' if variables[chat_id]['mode'] == 'ENG' else 'rus') + '_fivers.txt',
               encoding="utf-8") as f:
-        variables[chat_id]['wordlist'] = f.readlines()
-        variables[chat_id]['word'] = random.choice(variables[chat_id]['wordlist'])
-    print('Word is chosen: ' + variables[chat_id]['word'])
+        with open(dir + '/' + ('eng' if variables[chat_id]['mode'] == 'ENG' else 'rus') + '_all_fivers.txt',
+              encoding="utf-8") as f1:
+            variables[chat_id]['wordlist'] = f1.readlines()
+            variables[chat_id]['wordlist_selectable'] = f.readlines()
+            variables[chat_id]['word'] = random.choice(variables[chat_id]['wordlist_selectable'])
+    journal.write(str(chat_id)+': Word is chosen: ' + variables[chat_id]['word'])
     msg = bot.send_message(chat_id, '6 tries left' if variables[chat_id]['mode'] == 'ENG' else 'Осталось 6 попыток',
                            reply_markup=None)
     bot.register_next_step_handler(msg, guessStep)
@@ -45,8 +62,8 @@ def askLang(message):
 
 def guessStep(message):
     chat_id = message.chat.id
-    text = message.text
-    print('Step no ' + str(variables[chat_id]['tries']))
+    text = message.text.lower()
+    journal.write(str(chat_id)+': Step no ' + str(variables[chat_id]['tries']))
     # check word
     if len(text) != 5:
         msg = bot.send_message(chat_id,
@@ -58,7 +75,7 @@ def guessStep(message):
                                variables[chat_id]['tries'] > 1 else ' попытка'), reply_markup=None)
         bot.register_next_step_handler(msg, guessStep)
     elif text + '\n' not in variables[chat_id]['wordlist']:
-        print('Candidate: ' + text)
+        journal.write(str(chat_id)+': Candidate: ' + text)
         msg = bot.send_message(chat_id, 'Word must be present in dictionary\n' + str(
             variables[chat_id]['tries']) + ' tries left' if variables[chat_id][
                                                                 'mode'] == 'ENG' else 'Слово должно встречаться в словаре\nОсталось ' + str(
@@ -67,7 +84,7 @@ def guessStep(message):
         bot.register_next_step_handler(msg, guessStep)
     else:
         variables[chat_id]['tries'] -= 1
-        res = ''
+        res=''
         for pos in range(0, 5):
             if text[pos] == variables[chat_id]['word'][pos]:
                 res += 'b'
@@ -75,14 +92,17 @@ def guessStep(message):
                 res += 'c'
             else:
                 res += '_'
-        # print('your try is: '+res)
-        if (res == 'bbbbb'):
+        (variables[chat_id]['res']).append(res)
+        if (variables[chat_id]['res'][len(variables[chat_id]['res'])-1] == 'bbbbb'):
+            bot.send_message(chat_id, getBoard(variables[chat_id]['res']), reply_markup=None)
+            
             msg = bot.send_message(chat_id, 'You won. Send /start to play again' if variables[chat_id][
                                                                                         'mode'] == 'ENG' else 'Победа! Отправьте /start для новой игры',
                                    reply_markup=None)
-            print('Word guessed')
+            journal.write(str(chat_id)+': Word guessed')
             return
         elif variables[chat_id]['tries'] == 0:
+            bot.send_message(chat_id, getBoard(variables[chat_id]['res']), reply_markup=None)
             msg = bot.send_message(chat_id, 'Sorry, all 6 tries are out. The word was: ' + variables[chat_id][
                 'word'] + '\nSend /start to play again' if variables[chat_id][
                                                                'mode'] == 'ENG' else 'К сожалению, попытки закончились. Слово было: ' +
@@ -92,13 +112,7 @@ def guessStep(message):
             return
         else:
             answer = ''
-            for i in res:
-                if i == '_':
-                    answer += '⬜'
-                elif i == 'c':
-                    answer += '🟨'
-                elif i == 'b':
-                    answer += '🟩'
+            answer=getBoard([variables[chat_id]['res'][5-variables[chat_id]['tries']]])
             msg = bot.send_message(chat_id, answer + (
                 '\n' + str(variables[chat_id]['tries']) + ' tries left' if variables[chat_id][
                                                                                'mode'] == 'ENG' else '\nОсталось ' + str(
