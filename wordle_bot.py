@@ -2,6 +2,8 @@ import random
 import os
 import telebot
 from systemd import journal
+import mariadb
+from datetime import date
 
 dir = os.path.dirname(__file__)
 TOKEN = '5035471046:AAGoP2kz6lq9eRT_R9CFJYNu_gNCaBS9jeI'
@@ -24,11 +26,41 @@ def getBoard(array):
         board+='\n'
     return board
 
+try:
+    conn = mariadb.connect(
+        user="wordlerbot",
+        password="i4mp455w0rd_",
+        host="localhost",
+        database="bot_db"
+
+    )
+    journal.write("Connected well")
+except mariadb.Error as e:
+    journal.write(f"Error connecting to MariaDB Platform: {e}")
+    sys.exit(1)
+
+# Get Cursor
+cur = conn.cursor()
+
 
 # handlers
 @bot.message_handler(commands=['start', 'go'])
 def start_handler(message):
+    #journal.write(message)
     chat_id = message.chat.id
+    d = str(date.today())
+    name=' '.join(filter(None, (message.chat.first_name, message.chat.last_name)))
+    try:
+        
+        cur.execute(
+    "INSERT INTO wordlerbot_users (id, name, alias, comment) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, alias=?, comment=?", 
+    (chat_id, name, message.chat.username, d, name, message.chat.username, d) )
+        conn.commit()
+        journal.write(f"Inserted {chat_id}")
+    except mariadb.Error as e:
+        journal.write(f"Error in db: {e}")
+    
+
     variables[chat_id] = {}
     # variables[chat_id]['mode']=mode
     variables[chat_id]['tries'] = 6
@@ -62,7 +94,9 @@ def askLang(message):
 
 def guessStep(message):
     chat_id = message.chat.id
-    text = message.text.lower()
+    text = message.text
+    if (len(text)>0):
+        text = text.lower()
     journal.write(str(chat_id)+': Step no ' + str(variables[chat_id]['tries']))
     # check word
     if len(text) != 5:
