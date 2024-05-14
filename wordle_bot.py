@@ -6,7 +6,8 @@ import mariadb
 from datetime import date
 
 dir = os.path.dirname(__file__)
-TOKEN = '5035471046:AAGoP2kz6lq9eRT_R9CFJYNu_gNCaBS9jeI'
+journal.write(os.environ['W_TOKEN'])
+TOKEN = os.environ['W_TOKEN']
 bot = telebot.TeleBot(TOKEN)
 mode = 'ENG'  # to be set by bot command
 wordlist = []
