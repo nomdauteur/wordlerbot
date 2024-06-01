@@ -12,6 +12,7 @@ bot = telebot.TeleBot(TOKEN)
 mode = 'ENG'  # to be set by bot command
 wordlist = []
 
+
 variables = {}
 
 def getBoard(array):
@@ -61,6 +62,8 @@ cur = conn.cursor()
 
 
 # handlers
+
+
 @bot.message_handler(commands=['help'])
 def helper(message):
     send_help(message.chat.id)
@@ -150,15 +153,30 @@ def guessStep(message):
         bot.register_next_step_handler(msg, guessStep)
     else:
         variables[chat_id]['tries'] -= 1
-        res=''
+        res=[]
+        occurs=[]
+        greens = {}
+        for g in [chr(i) for i in range(ord('a'),ord('z')+1)]:
+            greens[g]=0
+        for g in [chr(i) for i in range(ord('а'),ord('я')+1)]:
+            greens[g]=0
+        greens['ё']=0
         for pos in range(0, 5):
+            occurs.append(text[:pos+1].count(text[pos]))
             if text[pos] == variables[chat_id]['word'][pos]:
-                res += 'b'
-            elif text[pos] in variables[chat_id]['word']:
-                res += 'c'
+                res.append('b')
+                greens[text[pos]] = greens[text[pos]] + 1
+                
+            elif (text[pos] in variables[chat_id]['word']):
+                res.append('c')
+                
             else:
-                res += '_'
-        (variables[chat_id]['res']).append(res)
+                res.append('_')
+                
+        for pos in range(0, 5):
+            if (res[pos] == 'c' and occurs[pos] > (variables[chat_id]['word'].count(text[pos]) - greens[text[pos]])):
+                res[pos] = '_'
+        (variables[chat_id]['res']).append(''.join(res))
         if (variables[chat_id]['res'][len(variables[chat_id]['res'])-1] == 'bbbbb'):
             bot.send_message(chat_id, getBoard(variables[chat_id]['res']), reply_markup=None)
             
